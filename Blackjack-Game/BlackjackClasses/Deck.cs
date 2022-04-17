@@ -12,11 +12,10 @@ namespace BlackjackClasses
         public int counter;
         public string[] Suits = { "Clubs", "Diamonds", "Hearts", "Spades" };
         public string[] Faces = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace" };
-        public List<Card> Cards { get; set; }
+        private List<Card> Cards = new List<Card>();
 
         public Deck()
         {
-            Cards = new List<Card>();
             counter = 0;
 
             // Build deck
@@ -54,9 +53,9 @@ namespace BlackjackClasses
                 int a = rnd.Next(0, Cards.Count);
                 int b = rnd.Next(0, Cards.Count);
 
-                Card tmp = Cards[a];
+                Card c = Cards[a];
                 Cards[a] = Cards[b];
-                Cards[a] = tmp;
+                Cards[b] = c;
             }
 
             counter = 0;
