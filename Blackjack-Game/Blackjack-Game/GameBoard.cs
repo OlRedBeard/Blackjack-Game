@@ -15,7 +15,7 @@ namespace Blackjack_Game
     {
         public Deck theDeck;
         public Player you = new Player();
-        public PlayerAI ai = new PlayerAI();
+        public Player opponent;
         public int Type;
         public int thePot = 0;
         public bool yourTurn;
@@ -26,15 +26,21 @@ namespace Blackjack_Game
 
             this.Type = type;
 
-            // Set visibility
-            SetLabelValues();
-            btnBegin.Visible = true;
-            btnHit.Visible = false;
-            btnStand.Visible = false;
+            // Instantiate AI player if needed
+            if (Type == 0)
+            {
+                opponent = new PlayerAI();
+                btnBegin.Visible = true;
 
-            // Instantiate deck & shuffle
-            theDeck = new Deck();
-            theDeck.Shuffle();
+                // Set visibility
+                SetLabelValues();
+                btnHit.Visible = false;
+                btnStand.Visible = false;
+
+                // Instantiate deck & shuffle
+                theDeck = new Deck();
+                theDeck.Shuffle();
+            }                      
         }
 
         private void btnBegin_Click(object sender, EventArgs e)
@@ -71,9 +77,9 @@ namespace Blackjack_Game
         public void SetLabelValues()
         {
             lblYouVal.Text = you.CardValue.ToString();
-            lblOppVal.Text = ai.CardValue.ToString();
+            lblOppVal.Text = opponent.CardValue.ToString();
             lblYouChips.Text = you.Chips.ToString();
-            lblOppChips.Text = ai.Chips.ToString();
+            lblOppChips.Text = opponent.Chips.ToString();
             lblPot.Text = thePot.ToString();
         }
 
@@ -89,16 +95,16 @@ namespace Blackjack_Game
                 if (i % 2 == 0)
                     you.GetCard(tmp);
                 else
-                    ai.GetCard(tmp);
+                    opponent.GetCard(tmp);
 
                 SetLabelValues();
             }
 
             // Update picture boxes
             picYou1.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[0].ToString());
-            picOpp1.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + ai.myCards[0].ToString());
+            picOpp1.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[0].ToString());
             picYou2.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[1].ToString());
-            picOpp2.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + ai.myCards[1].ToString());
+            picOpp2.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[1].ToString());
 
             // Player Turn
             yourTurn = true;
@@ -138,7 +144,7 @@ namespace Blackjack_Game
             {
                 case 0:
                     lblPot.Text = "You Lose!";
-                    ai.TakePot(thePot);
+                    opponent.TakePot(thePot);
                     thePot = 0;
                     break;
             }
