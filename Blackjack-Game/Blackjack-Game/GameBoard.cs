@@ -110,7 +110,7 @@ namespace Blackjack_Game
 
         public void PlayerTurn()
         {
-            // Player turn -- NOT WORKING
+            // Player turn -- NOT WORKING, WHILE LOOP FREEZES PROGRAM ENTIRELY
             btnHit.Visible = true;
             btnStand.Visible = true;
 
