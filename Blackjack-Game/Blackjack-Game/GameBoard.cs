@@ -19,6 +19,9 @@ namespace Blackjack_Game
         public int Type;
         public int thePot = 0;
         public bool yourTurn;
+        public bool oppturn;
+        BackgroundWorker yourWorker = new BackgroundWorker();
+        BackgroundWorker oppWorker = new BackgroundWorker();
 
         public GameBoard(int type)
         {
@@ -108,6 +111,10 @@ namespace Blackjack_Game
 
             // Player Turn
             yourTurn = true;
+            yourWorker.WorkerSupportsCancellation = true;
+            yourWorker.DoWork += YourWorker_DoWork;
+            yourWorker.RunWorkerCompleted += YourWorker_RunWorkerCompleted;
+            yourWorker.RunWorkerAsync();
             PlayerTurn();
 
             // Opponent turn
@@ -116,37 +123,160 @@ namespace Blackjack_Game
 
         public void PlayerTurn()
         {
-            // Player turn -- NOT WORKING, WHILE LOOP FREEZES PROGRAM ENTIRELY
+            thePot += you.Bet(10);
             btnHit.Visible = true;
             btnStand.Visible = true;
+        }
 
-            while (yourTurn)
+        public void OpponentTurn()
+        {
+            oppturn = true;
+            thePot += you.Bet(10);
+
+            if (Type == 0)
+            {                
+                oppWorker.WorkerSupportsCancellation = true;
+                oppWorker.DoWork += OppWorker_DoWork;
+                oppWorker.RunWorkerCompleted += OppWorker_RunWorkerCompleted;
+                oppWorker.RunWorkerAsync();
+            }
+        }
+
+        public void OpponentHit()
+        {
+            if (Type == 0)
             {
-                if (you.CardValue > 21)
+                Card tmp = theDeck.DealCard();
+
+                if (tmp is Ace && opponent.CardValue > 10)
                 {
-                    EndGame(0);
-                    break;
-                }                    
-                else if (you.myCards.Count == 5)
+                    Ace ace = (Ace)tmp;
+                    ace.SwapValue();
+                    tmp = ace;
+                }
+                opponent.GetCard(tmp);
+                SetLabelValues();
+
+                if (opponent.myCards.Count == 3)
+                    picOpp3.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[2].ToString());
+                else if (opponent.myCards.Count == 4)
+                    picOpp4.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[3].ToString());
+                else if (opponent.myCards.Count == 5)
+                    picOpp5.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[4].ToString());
+
+                OpponentCheck();
+            }
+            else
+            {
+
+            }
+        }
+
+        public void OpponentCheck()
+        {
+            if (opponent.CardValue > 21)
+            {
+                EndGame(1);
+            }
+            else if (opponent.myCards.Count == 5)
+            {
+                EndGame(0);
+            }
+        }
+
+        private void OppWorker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
+        {
+            SetLabelValues();
+        }
+
+        private void OppWorker_DoWork(object? sender, DoWorkEventArgs e)
+        {
+            while (oppturn)
+            {
+                if (opponent is PlayerAI)
                 {
-                    EndGame(1);
-                    break;
+                    PlayerAI playerAI = (PlayerAI)opponent;
+                    int x = playerAI.MakeMove(you.CardValue);
+
+                    if (x == 1)
+                        this.Invoke(new Action(() => EndGame(3)));
+                    else
+                    {
+                        // Invoke method to add a card to the opponent's list and check for win/loss
+                        this.Invoke(new Action(() => OpponentHit()));
+                    }
+                }
+                else
+                {
+
                 }
             }
-
-            btnHit.Visible = false;
-            btnStand.Visible = false;
         }
 
         public void EndGame(int mod)
         {
+            yourTurn = false;
+            oppturn = false;
+
             switch (mod)
             {
                 case 0:
                     lblPot.Text = "You Lose!";
                     opponent.TakePot(thePot);
                     thePot = 0;
+                    SetLabelValues();
                     break;
+                case 1:
+                    lblPot.Text = "You Win!";
+                    you.TakePot(thePot);
+                    thePot = 0;
+                    SetLabelValues();
+                    break;
+                case 3:
+                    if (you.CardValue > opponent.CardValue)
+                    {
+                        lblPot.Text = "You Win!";
+                        you.TakePot(thePot);
+                    }
+                        
+                    else if (you.CardValue < opponent.CardValue)
+                    {
+                        lblPot.Text = "You Lose!";
+                        opponent.TakePot(thePot);
+                    }                        
+                    else
+                    {
+                        lblPot.Text = "Push!";
+                        you.TakePot(thePot / 2);
+                        opponent.TakePot(thePot / 2);
+                    }
+                    thePot = 0;
+                    SetLabelValues();
+                    break;
+            }
+        }
+
+        private void YourWorker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
+        {
+            btnHit.Visible = false;
+            btnStand.Visible = false;
+            OpponentTurn();
+        }
+
+        private void YourWorker_DoWork(object? sender, DoWorkEventArgs e)
+        {
+            while (yourTurn)
+            {
+                if (you.CardValue > 21)
+                {
+                    this.Invoke(new Action(() => EndGame(0)));                    
+                    break;
+                }
+                else if (you.myCards.Count == 5)
+                {
+                    this.Invoke(new Action(() => EndGame(1)));
+                    break;
+                }
             }
         }
     }

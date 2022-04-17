@@ -46,7 +46,7 @@
             this.btnHit = new System.Windows.Forms.Button();
             this.btnStand = new System.Windows.Forms.Button();
             this.btnResign = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblTitle = new System.Windows.Forms.Label();
             this.lblPot = new System.Windows.Forms.Label();
             this.lblYouVal = new System.Windows.Forms.Label();
             this.lblOppVal = new System.Windows.Forms.Label();
@@ -246,26 +246,26 @@
             this.btnResign.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.btnResign.UseVisualStyleBackColor = true;
             // 
-            // label1
+            // lblTitle
             // 
-            this.label1.BackColor = System.Drawing.Color.Transparent;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label1.ForeColor = System.Drawing.Color.Gold;
-            this.label1.Location = new System.Drawing.Point(448, 255);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(189, 46);
-            this.label1.TabIndex = 18;
-            this.label1.Text = "THE POT";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lblTitle.BackColor = System.Drawing.Color.Transparent;
+            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lblTitle.ForeColor = System.Drawing.Color.Gold;
+            this.lblTitle.Location = new System.Drawing.Point(448, 255);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Size = new System.Drawing.Size(189, 46);
+            this.lblTitle.TabIndex = 18;
+            this.lblTitle.Text = "THE POT";
+            this.lblTitle.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lblPot
             // 
             this.lblPot.BackColor = System.Drawing.Color.Transparent;
             this.lblPot.Font = new System.Drawing.Font("Segoe UI", 36F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblPot.ForeColor = System.Drawing.Color.White;
-            this.lblPot.Location = new System.Drawing.Point(448, 301);
+            this.lblPot.Location = new System.Drawing.Point(348, 301);
             this.lblPot.Name = "lblPot";
-            this.lblPot.Size = new System.Drawing.Size(189, 65);
+            this.lblPot.Size = new System.Drawing.Size(387, 65);
             this.lblPot.TabIndex = 17;
             this.lblPot.Text = "100";
             this.lblPot.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -316,7 +316,7 @@
             this.Controls.Add(this.btnBegin);
             this.Controls.Add(this.lblOppVal);
             this.Controls.Add(this.lblYouVal);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.lblPot);
             this.Controls.Add(this.btnResign);
             this.Controls.Add(this.btnStand);
@@ -371,7 +371,7 @@
         private Button btnHit;
         private Button btnStand;
         private Button btnResign;
-        private Label label1;
+        private Label lblTitle;
         private Label lblPot;
         private Label lblYouVal;
         private Label lblOppVal;

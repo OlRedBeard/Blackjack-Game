@@ -41,5 +41,10 @@ namespace BlackjackClasses
         {
             this.Chips += pot;
         }
+
+        public void Reset()
+        {
+            this.CardValue = 0;
+        }
     }
 }
