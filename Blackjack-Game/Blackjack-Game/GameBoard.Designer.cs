@@ -267,7 +267,7 @@
             this.lblPot.Name = "lblPot";
             this.lblPot.Size = new System.Drawing.Size(387, 65);
             this.lblPot.TabIndex = 17;
-            this.lblPot.Text = "100";
+            this.lblPot.Text = "0";
             this.lblPot.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lblYouVal

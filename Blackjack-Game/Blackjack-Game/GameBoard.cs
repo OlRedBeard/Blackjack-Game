@@ -20,6 +20,7 @@ namespace Blackjack_Game
         public int thePot = 0;
         public bool yourTurn;
         public bool oppturn;
+        public bool roundOver;
         BackgroundWorker yourWorker = new BackgroundWorker();
         BackgroundWorker oppWorker = new BackgroundWorker();
 
@@ -42,25 +43,71 @@ namespace Blackjack_Game
 
                 // Instantiate deck & shuffle
                 theDeck = new Deck();
-                theDeck.Shuffle();
             }                      
         }
 
         private void btnBegin_Click(object sender, EventArgs e)
         {
-            if (this.Type == 0)
-                PlaySP();
+            if (btnBegin.Text == "BEGIN")
+            {
+                if (this.Type == 0)
+                    PlaySP();
+            }
+            else if (btnBegin.Text == "Next Round")
+            {
+                ClearResults();
+                lblTitle.Text = "POT";
+                lblTitle.Visible = true;
+
+                if (this.Type == 0)
+                    PlaySP();
+            }
+        }
+
+        private void ClearResults()
+        {
+            picYou1.Image = null;
+            picYou2.Image = null;
+            picYou3.Image = null;
+            picYou4.Image = null;
+            picYou5.Image = null;
+            picOpp1.Image = null;
+            picOpp2.Image = null;
+            picOpp3.Image = null;
+            picOpp4.Image = null;
+            picOpp5.Image = null;
+
+            you.myCards.Clear();
+            you.CardValue = 0;
+            opponent.myCards.Clear();
+            opponent.CardValue = 0;
         }
 
         private void btnHit_Click(object sender, EventArgs e)
         {
             Card tmp = theDeck.DealCard();
-            if (tmp is Ace && you.CardValue > 10)
+            if (tmp is Ace && you.CardValue >= 11)
             {
                 Ace ace = (Ace)tmp;
                 ace.SwapValue();
                 tmp = ace;
             }
+            else if (tmp.Value + you.CardValue > 21)
+            {
+                foreach (Card tmp2 in you.myCards)
+                {
+                    if (tmp2 is Ace)
+                    {
+                        Ace ace2 = (Ace)tmp2;
+                        if (ace2.Value == 11)
+                        {
+                            ace2.SwapValue();
+                            you.CardValue -= 10;
+                        }
+                    }
+                }
+            }
+
             you.GetCard(tmp);
             SetLabelValues();
 
@@ -83,11 +130,13 @@ namespace Blackjack_Game
             lblOppVal.Text = opponent.CardValue.ToString();
             lblYouChips.Text = you.Chips.ToString();
             lblOppChips.Text = opponent.Chips.ToString();
-            lblPot.Text = thePot.ToString();
         }
 
         public void PlaySP()
         {
+            roundOver = false;
+            theDeck.Shuffle();
+
             // Hide unnecesary controls
             btnBegin.Visible = false;
 
@@ -101,6 +150,7 @@ namespace Blackjack_Game
                     opponent.GetCard(tmp);
 
                 SetLabelValues();
+                lblPot.Text = thePot.ToString();
             }
 
             // Update picture boxes
@@ -115,30 +165,32 @@ namespace Blackjack_Game
             yourWorker.DoWork += YourWorker_DoWork;
             yourWorker.RunWorkerCompleted += YourWorker_RunWorkerCompleted;
             yourWorker.RunWorkerAsync();
-            PlayerTurn();
-
-            // Opponent turn
-            
+            PlayerTurn();            
         }
 
         public void PlayerTurn()
         {
             thePot += you.Bet(10);
+            thePot += opponent.Bet(10);
+            SetLabelValues();
+            lblPot.Text = thePot.ToString();
             btnHit.Visible = true;
+            btnHit.Enabled = true;
             btnStand.Visible = true;
         }
 
         public void OpponentTurn()
         {
             oppturn = true;
-            thePot += you.Bet(10);
+            lblPot.Text = thePot.ToString();
 
             if (Type == 0)
             {                
                 oppWorker.WorkerSupportsCancellation = true;
                 oppWorker.DoWork += OppWorker_DoWork;
                 oppWorker.RunWorkerCompleted += OppWorker_RunWorkerCompleted;
-                oppWorker.RunWorkerAsync();
+                if (!oppWorker.IsBusy)
+                    oppWorker.RunWorkerAsync();
             }
         }
 
@@ -148,12 +200,28 @@ namespace Blackjack_Game
             {
                 Card tmp = theDeck.DealCard();
 
-                if (tmp is Ace && opponent.CardValue > 10)
+                if (tmp is Ace && opponent.CardValue >= 11)
                 {
                     Ace ace = (Ace)tmp;
                     ace.SwapValue();
                     tmp = ace;
                 }
+                else if (tmp.Value + opponent.CardValue > 21)
+                {
+                    foreach (Card tmp2 in opponent.myCards)
+                    {
+                        if (tmp2 is Ace)
+                        {
+                            Ace ace2 = (Ace)tmp2;
+                            if (ace2.Value == 11)
+                            {
+                                ace2.SwapValue();
+                                opponent.CardValue -= 10;
+                            }
+                        }
+                    }
+                }
+
                 opponent.GetCard(tmp);
                 SetLabelValues();
 
@@ -180,7 +248,7 @@ namespace Blackjack_Game
             }
             else if (opponent.myCards.Count == 5)
             {
-                EndGame(0);
+                EndGame(3);
             }
         }
 
@@ -217,42 +285,58 @@ namespace Blackjack_Game
         {
             yourTurn = false;
             oppturn = false;
+            roundOver = true;
+            lblTitle.Visible = false;
 
             switch (mod)
             {
                 case 0:
-                    lblPot.Text = "You Lose!";
                     opponent.TakePot(thePot);
                     thePot = 0;
                     SetLabelValues();
+                    lblPot.Text = "You Lose!";
                     break;
                 case 1:
-                    lblPot.Text = "You Win!";
                     you.TakePot(thePot);
                     thePot = 0;
                     SetLabelValues();
+                    lblPot.Text = "You Win!";
                     break;
                 case 3:
                     if (you.CardValue > opponent.CardValue)
                     {
-                        lblPot.Text = "You Win!";
                         you.TakePot(thePot);
+                        thePot = 0;
+                        SetLabelValues();
+                        lblPot.Text = "You Win!";
                     }
                         
                     else if (you.CardValue < opponent.CardValue)
                     {
-                        lblPot.Text = "You Lose!";
                         opponent.TakePot(thePot);
+                        thePot = 0;
+                        SetLabelValues();
+                        lblPot.Text = "You Lose!";
                     }                        
                     else
-                    {
-                        lblPot.Text = "Push!";
+                    {                        
                         you.TakePot(thePot / 2);
                         opponent.TakePot(thePot / 2);
+                        thePot = 0;
+                        lblPot.Text = "Push!";
                     }
-                    thePot = 0;
-                    SetLabelValues();
                     break;
+            }
+
+            if (you.Chips > 0 && opponent.Chips > 0)
+            {
+                btnBegin.Text = "Next Round";
+                btnBegin.Visible = true;
+            }
+            else if (you.Chips == 0)
+            {
+                lblTitle.Text = "Game Over";
+                lblTitle.Visible = true;
             }
         }
 
@@ -260,7 +344,8 @@ namespace Blackjack_Game
         {
             btnHit.Visible = false;
             btnStand.Visible = false;
-            OpponentTurn();
+            if (!roundOver)
+                OpponentTurn();
         }
 
         private void YourWorker_DoWork(object? sender, DoWorkEventArgs e)
@@ -274,7 +359,7 @@ namespace Blackjack_Game
                 }
                 else if (you.myCards.Count == 5)
                 {
-                    this.Invoke(new Action(() => EndGame(1)));
+                    this.Invoke(new Action(() => btnHit.Enabled = false));
                     break;
                 }
             }

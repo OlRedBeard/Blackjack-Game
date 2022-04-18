@@ -22,7 +22,7 @@ namespace BlackjackClasses
 
         public int Bet(int bet)
         {
-            if (bet < this.Chips)
+            if (bet > this.Chips)
                 return this.Chips;
             else
             {

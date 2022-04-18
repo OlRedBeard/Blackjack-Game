@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blackjack-Game", "Blackjack-Game\Blackjack-Game.csproj", "{FB9E9AD8-6362-41C5-BE53-8B3480AB7DDD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blackjack-Game", "Blackjack-Game\Blackjack-Game.csproj", "{FB9E9AD8-6362-41C5-BE53-8B3480AB7DDD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlackjackClasses", "BlackjackClasses\BlackjackClasses.csproj", "{11D69A7C-9D05-4F0A-A9FD-3CF1D7BA4B1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlackjackClasses", "BlackjackClasses\BlackjackClasses.csproj", "{11D69A7C-9D05-4F0A-A9FD-3CF1D7BA4B1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blackjack-Server", "Blackjack-Server\Blackjack-Server.csproj", "{41A13FD6-F357-4551-B713-3F83D55F0722}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{11D69A7C-9D05-4F0A-A9FD-3CF1D7BA4B1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11D69A7C-9D05-4F0A-A9FD-3CF1D7BA4B1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{11D69A7C-9D05-4F0A-A9FD-3CF1D7BA4B1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41A13FD6-F357-4551-B713-3F83D55F0722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41A13FD6-F357-4551-B713-3F83D55F0722}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41A13FD6-F357-4551-B713-3F83D55F0722}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41A13FD6-F357-4551-B713-3F83D55F0722}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
