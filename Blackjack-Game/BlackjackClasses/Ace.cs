@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace BlackjackClasses
 {
+    [Serializable]
     public class Ace : Card
     {
         public Ace(string face, string suit, int value) : base(face, suit, value)

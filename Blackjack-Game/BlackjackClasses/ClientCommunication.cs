@@ -36,6 +36,9 @@ namespace BlackjackClasses
         public event ChallengeReceivedEventHandler ChallengeReceived;
         public delegate void ChallengeReceivedEventHandler(Challenge message);
 
+        public event HostGameEventHandler StartGame;
+        public delegate void HostGameEventHandler(Tuple<Challenge, int> message);
+
         public ClientCommunication(string serv)
         {
             this.serverName = serv;
@@ -56,6 +59,13 @@ namespace BlackjackClasses
         {
             IFormatter formatter = new BinaryFormatter();
             formatter.Serialize(writer.BaseStream, challengeInfo);
+        }
+
+        public void RespondToChallenge(Challenge c, int response)
+        {
+            Tuple<Challenge, int> challengeTuple = new Tuple<Challenge, int>(c, response);
+            IFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(writer.BaseStream, challengeTuple);
         }
 
         private void Worker_DoWork(object? sender, DoWorkEventArgs e)
@@ -90,6 +100,10 @@ namespace BlackjackClasses
                         else if (o is Challenge)
                         {
                             ChallengeReceived((Challenge)o);
+                        }
+                        else if (o is Tuple<Challenge, int>)
+                        {
+                            StartGame((Tuple<Challenge, int>)o);
                         }
                     }
                 }

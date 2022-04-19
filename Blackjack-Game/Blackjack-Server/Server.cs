@@ -37,6 +37,7 @@ namespace Blackjack_Server
                 mngr.ClientDisconnected += Mngr_ClientDisconnected;
                 mngr.ReceivedMessage += Mngr_ReceivedMessage;
                 mngr.ChallengeIssued += Mngr_ChallengeIssued;
+                mngr.ChallengeAccepted += Mngr_ChallengeAccepted;
 
                 lstMessages.Items.Add("** Server has Started **");
                 ScrollListBox();
@@ -83,6 +84,26 @@ namespace Blackjack_Server
             lstMessages.SelectedIndex = lstMessages.Items.Count - 1;
         }
 
+        private void Mngr_ChallengeAccepted(ServerManager client, Tuple<Challenge, int> message)
+        {
+            foreach (ServerManager cli in lstClients)
+            {
+                if (cli.name == message.Item1.Issuer)
+                {
+                    cli.SendMessage(message);
+                }
+                else if (cli.name == message.Item1.Recipient)
+                {
+                    cli.SendMessage(message);
+                }
+            }
+
+            string msg = "** " + message.Item1.Recipient + " accepted " + message.Item1.Issuer + "'s challenge! **";
+            ServerMessage(msg);
+            lstMessages.Items.Add(msg);
+            ScrollListBox();
+        }
+
         private void Mngr_ChallengeIssued(ServerManager client, Challenge message)
         {
             foreach(ServerManager cli in lstClients)
@@ -91,7 +112,19 @@ namespace Blackjack_Server
                 {
                     cli.SendMessage(message);
                 }
+                else if (cli.name == message.Issuer)
+                {
+                    string msg = "** You challenged " + message.Recipient + " to a game! **";
+                    cli.SendMessage(msg);
+                }
+                else
+                {
+                    string msg = "** " + message.Issuer + " challenged " + message.Recipient + " to a game! **";
+                }
             }
+
+            lstMessages.Items.Add("** " + message.Issuer + " challenged " + message.Recipient + " to a game! **");
+            ScrollListBox();
         }
 
         private void Mngr_NewClientConnected(ServerManager client)
@@ -106,6 +139,7 @@ namespace Blackjack_Server
             mngr.ClientDisconnected += Mngr_ClientDisconnected;
             mngr.ReceivedMessage += Mngr_ReceivedMessage;
             mngr.ChallengeIssued += Mngr_ChallengeIssued;
+            mngr.ChallengeAccepted += Mngr_ChallengeAccepted;
         }
 
         private void Mngr_ClientDisconnected(ServerManager client)

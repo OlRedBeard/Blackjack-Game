@@ -40,6 +40,9 @@ namespace BlackjackClasses
         public event ChallengeIssuedEventHandler ChallengeIssued;
         public delegate void ChallengeIssuedEventHandler(ServerManager client, Challenge message);
 
+        public event ChallengeAcceptedEventHandler ChallengeAccepted;
+        public delegate void ChallengeAcceptedEventHandler(ServerManager client, Tuple<Challenge, int> message);
+
         public ServerManager(TcpListener listen)
         {
             ServerManager.listener = listen;
@@ -76,6 +79,19 @@ namespace BlackjackClasses
             }
         }
 
+        public void SendMessage(Tuple<Challenge, int> cResponse)
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(writer.BaseStream, cResponse);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public void SendClientList(List<string> clientNames)
         {
             try
@@ -101,6 +117,8 @@ namespace BlackjackClasses
                     ReceivedMessage(this, (string)e.UserState);
                 else if (e.ProgressPercentage == 3)
                     ChallengeIssued(this, (Challenge)e.UserState);
+                else if (e.ProgressPercentage == 4)
+                    ChallengeAccepted(this, (Tuple<Challenge, int>)e.UserState);
                 else if (e.ProgressPercentage == 9)
                     ClientDisconnected(this);
             }
@@ -155,6 +173,10 @@ namespace BlackjackClasses
                         else if (o is Challenge)
                         {
                             serverWorker.ReportProgress(3, (Challenge)o);
+                        }
+                        else if (o is Tuple<Challenge, int>)
+                        {
+                            serverWorker.ReportProgress(4, (Tuple<Challenge, int>)o);
                         }
                     }
                     catch (Exception ex)

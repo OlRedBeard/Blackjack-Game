@@ -32,6 +32,8 @@
             this.btnPlaySingle = new System.Windows.Forms.Button();
             this.btnJoin = new System.Windows.Forms.Button();
             this.pnlChat = new System.Windows.Forms.Panel();
+            this.cmbChallenges = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.btnDecline = new System.Windows.Forms.Button();
             this.btnAccept = new System.Windows.Forms.Button();
             this.lblIncChallenge = new System.Windows.Forms.Label();
@@ -46,8 +48,6 @@
             this.lstMessages = new System.Windows.Forms.ListBox();
             this.txtServIP = new System.Windows.Forms.TextBox();
             this.lblServIP = new System.Windows.Forms.Label();
-            this.cmbChallenges = new System.Windows.Forms.ComboBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.pnlChat.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -98,6 +98,28 @@
             this.pnlChat.Size = new System.Drawing.Size(1082, 621);
             this.pnlChat.TabIndex = 3;
             // 
+            // cmbChallenges
+            // 
+            this.cmbChallenges.BackColor = System.Drawing.Color.Black;
+            this.cmbChallenges.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.cmbChallenges.ForeColor = System.Drawing.Color.White;
+            this.cmbChallenges.FormattingEnabled = true;
+            this.cmbChallenges.Location = new System.Drawing.Point(231, 565);
+            this.cmbChallenges.Name = "cmbChallenges";
+            this.cmbChallenges.Size = new System.Drawing.Size(220, 29);
+            this.cmbChallenges.TabIndex = 15;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label3.ForeColor = System.Drawing.Color.White;
+            this.label3.Location = new System.Drawing.Point(17, 568);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(171, 21);
+            this.label3.TabIndex = 14;
+            this.label3.Text = "Received Challenges:";
+            // 
             // btnDecline
             // 
             this.btnDecline.BackColor = System.Drawing.Color.Black;
@@ -108,6 +130,7 @@
             this.btnDecline.TabIndex = 13;
             this.btnDecline.Text = "Decline";
             this.btnDecline.UseVisualStyleBackColor = false;
+            this.btnDecline.Click += new System.EventHandler(this.btnDecline_Click);
             // 
             // btnAccept
             // 
@@ -119,6 +142,7 @@
             this.btnAccept.TabIndex = 12;
             this.btnAccept.Text = "Accept";
             this.btnAccept.UseVisualStyleBackColor = false;
+            this.btnAccept.Click += new System.EventHandler(this.btnAccept_Click);
             // 
             // lblIncChallenge
             // 
@@ -254,28 +278,6 @@
             this.lblServIP.Size = new System.Drawing.Size(115, 21);
             this.lblServIP.TabIndex = 0;
             this.lblServIP.Text = "Enter Server IP:";
-            // 
-            // cmbChallenges
-            // 
-            this.cmbChallenges.BackColor = System.Drawing.Color.Black;
-            this.cmbChallenges.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.cmbChallenges.ForeColor = System.Drawing.Color.White;
-            this.cmbChallenges.FormattingEnabled = true;
-            this.cmbChallenges.Location = new System.Drawing.Point(231, 565);
-            this.cmbChallenges.Name = "cmbChallenges";
-            this.cmbChallenges.Size = new System.Drawing.Size(220, 29);
-            this.cmbChallenges.TabIndex = 15;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(17, 568);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(171, 21);
-            this.label3.TabIndex = 14;
-            this.label3.Text = "Received Challenges:";
             // 
             // Form1
             // 

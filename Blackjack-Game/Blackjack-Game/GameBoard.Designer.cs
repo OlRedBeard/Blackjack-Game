@@ -42,7 +42,7 @@
             this.lblYouChips = new System.Windows.Forms.Label();
             this.lblOppChips = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
+            this.lblOppName = new System.Windows.Forms.Label();
             this.btnHit = new System.Windows.Forms.Button();
             this.btnStand = new System.Windows.Forms.Button();
             this.btnResign = new System.Windows.Forms.Button();
@@ -199,17 +199,17 @@
             this.label3.Text = "YOU";
             this.label3.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // label4
+            // lblOppName
             // 
-            this.label4.BackColor = System.Drawing.Color.Transparent;
-            this.label4.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.label4.ForeColor = System.Drawing.Color.Gold;
-            this.label4.Location = new System.Drawing.Point(875, 12);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(200, 46);
-            this.label4.TabIndex = 13;
-            this.label4.Text = "OPPONENT";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lblOppName.BackColor = System.Drawing.Color.Transparent;
+            this.lblOppName.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lblOppName.ForeColor = System.Drawing.Color.Gold;
+            this.lblOppName.Location = new System.Drawing.Point(875, 12);
+            this.lblOppName.Name = "lblOppName";
+            this.lblOppName.Size = new System.Drawing.Size(200, 46);
+            this.lblOppName.TabIndex = 13;
+            this.lblOppName.Text = "OPPONENT";
+            this.lblOppName.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // btnHit
             // 
@@ -263,9 +263,9 @@
             this.lblPot.BackColor = System.Drawing.Color.Transparent;
             this.lblPot.Font = new System.Drawing.Font("Segoe UI", 36F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lblPot.ForeColor = System.Drawing.Color.White;
-            this.lblPot.Location = new System.Drawing.Point(348, 301);
+            this.lblPot.Location = new System.Drawing.Point(86, 301);
             this.lblPot.Name = "lblPot";
-            this.lblPot.Size = new System.Drawing.Size(387, 65);
+            this.lblPot.Size = new System.Drawing.Size(911, 65);
             this.lblPot.TabIndex = 17;
             this.lblPot.Text = "0";
             this.lblPot.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -317,11 +317,10 @@
             this.Controls.Add(this.lblOppVal);
             this.Controls.Add(this.lblYouVal);
             this.Controls.Add(this.lblTitle);
-            this.Controls.Add(this.lblPot);
             this.Controls.Add(this.btnResign);
             this.Controls.Add(this.btnStand);
             this.Controls.Add(this.btnHit);
-            this.Controls.Add(this.label4);
+            this.Controls.Add(this.lblOppName);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.lblOppChips);
             this.Controls.Add(this.lblYouChips);
@@ -335,6 +334,7 @@
             this.Controls.Add(this.picYou3);
             this.Controls.Add(this.picYou2);
             this.Controls.Add(this.picYou1);
+            this.Controls.Add(this.lblPot);
             this.Name = "GameBoard";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GameBoard";
@@ -367,7 +367,7 @@
         private Label lblYouChips;
         private Label lblOppChips;
         private Label label3;
-        private Label label4;
+        private Label lblOppName;
         private Button btnHit;
         private Button btnStand;
         private Button btnResign;

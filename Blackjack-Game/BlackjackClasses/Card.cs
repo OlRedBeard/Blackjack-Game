@@ -1,5 +1,6 @@
 ﻿namespace BlackjackClasses
 {
+    [Serializable]
     public class Card
     {
         public string Suit { get; set; }

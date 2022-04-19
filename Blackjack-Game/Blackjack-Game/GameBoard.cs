@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,9 +15,15 @@ namespace Blackjack_Game
 {
     public partial class GameBoard : Form
     {
+        public static int port = 6000;
+        TcpListener listener;
+        GameServer gs;
+        GameComm gc;
+
         public Deck theDeck;
         public Player you = new Player();
         public Player opponent;
+        public Challenge theChallenge;
         public int Type;
         public int thePot = 0;
         public bool yourTurn;
@@ -30,20 +38,176 @@ namespace Blackjack_Game
 
             this.Type = type;
 
-            // Instantiate AI player if needed
-            if (Type == 0)
+            opponent = new PlayerAI();
+            btnBegin.Visible = true;
+
+            // Set visibility
+            SetLabelValues();
+            btnHit.Visible = false;
+            btnStand.Visible = false;
+
+            // Instantiate deck
+            theDeck = new Deck();
+        }
+
+        public GameBoard(Challenge c, string user)
+        {
+            InitializeComponent();
+            this.theChallenge = c;
+            you.SetName(user);
+
+            if (theChallenge.Issuer == you.Name)
             {
-                opponent = new PlayerAI();
-                btnBegin.Visible = true;
+                this.Type = 1;
+                this.Text = "Blackjack - Host";
+                opponent = new Player();
+                opponent.SetName(theChallenge.Recipient);
+                SetupServer(theChallenge.IssuerIP);
+            }
+            else
+            {
+                this.Type = 2;
+                this.Text = "Blackjack - Guest";
+                opponent = new Player();
+                opponent.SetName(theChallenge.Issuer);
+                SetupComms(theChallenge.IssuerIP);
+            }
 
-                // Set visibility
-                SetLabelValues();
-                btnHit.Visible = false;
-                btnStand.Visible = false;
+            // Set visibility
+            SetLabelValues();
+            btnBegin.Visible = false;
+            btnHit.Visible = false;
+            btnStand.Visible = false;
+        }
 
-                // Instantiate deck & shuffle
-                theDeck = new Deck();
-            }                      
+        private void SetupComms(string ip)
+        {
+            gc = new GameComm(ip);
+            gc.Connected += Gc_Connected;
+            gc.PlayerCard += Gc_PlayerCard;
+            gc.OpponentCard += Gc_OpponentCard;
+            gc.UpdateOpponent += Gc_UpdateOpponent;
+        }
+
+        private void Gc_UpdateOpponent(Player opponent)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Gc_OpponentCard(Card card)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Gc_PlayerCard(Card card)
+        {
+            this.Invoke(new Action(() => UpdateMyCards(card)));
+        }
+
+        private void Gc_Connected(string servername, int port)
+        {
+            if (IsHandleCreated)
+                this.Invoke(new Action(() => PlayGuest()));
+        }
+        
+        private void UpdateMyCards(Card card)
+        {
+            if (card is Ace && you.CardValue >= 11)
+            {
+                Ace ace = (Ace)card;
+                ace.SwapValue();
+                card = ace;
+            }
+            else if (card.Value + you.CardValue > 21)
+            {
+                foreach (Card tmp2 in you.myCards)
+                {
+                    if (tmp2 is Ace && card.Value + you.CardValue > 21)
+                    {
+                        Ace ace2 = (Ace)tmp2;
+                        if (ace2.Value == 11)
+                        {
+                            ace2.SwapValue();
+                            you.CardValue -= 10;
+                        }
+                    }
+                }
+            }
+
+            you.GetCard(card);
+            SetLabelValues();
+
+            if (you.myCards.Count == 1)
+                picYou1.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[0].ToString());
+            else if (you.myCards.Count == 2)
+                picYou2.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[1].ToString());
+            else if (you.myCards.Count == 3)
+                picYou3.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[2].ToString());
+            else if (you.myCards.Count == 4)
+                picYou4.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[3].ToString());
+            else if (you.myCards.Count == 5)
+                picYou5.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[4].ToString());
+
+            if (you.CardValue > 21)
+            {
+                gc.EndGame(you);
+                EndGame(0);
+            }                
+            else if (you.myCards.Count == 5)
+                btnHit.Enabled = false;
+        }
+
+        private void PlayGuest()
+        {
+            lblOppName.Text = theChallenge.Issuer;
+            thePot += you.Bet(10);
+            thePot += opponent.Bet(10);
+            SetLabelValues();
+            lblPot.Text = thePot.ToString();
+        }
+
+        private void SetupServer(string ip)
+        {
+            try
+            {
+                IPAddress serverName = (IPAddress)IPAddress.Parse(ip);
+                listener = new TcpListener(serverName, port);
+                listener.Start();
+
+                // Instantiate server and wire up delegates
+                gs = new GameServer(listener);
+                gs.OpponenentConnected += Gs_OpponenentConnected;
+                gs.OpponentUpdate += Gs_OpponentUpdate;
+
+                // Setup labels
+                lblTitle.Visible = false;
+                lblPot.Text = "Waiting for Opponent";
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        private void Gs_OpponentUpdate(Player opponent)
+        {
+            this.opponent = opponent;
+            if (opponent.CardValue > 21)
+                EndGame(1);
+            else
+                EndGame(3);
+        }
+
+        private void Gs_OpponenentConnected(GameServer client)
+        {
+            lblOppName.Text = opponent.Name;
+            lblTitle.Visible = true;
+            lblPot.Text = thePot.ToString();
+            btnBegin.Visible = true;
+
+            gs = new GameServer(listener);
+            gs.OpponenentConnected += Gs_OpponenentConnected;
+            gs.OpponentUpdate += Gs_OpponentUpdate;
         }
 
         private void btnBegin_Click(object sender, EventArgs e)
@@ -52,6 +216,8 @@ namespace Blackjack_Game
             {
                 if (this.Type == 0)
                     PlaySP();
+                else if (this.Type == 1)
+                    PlayHost();
             }
             else if (btnBegin.Text == "Next Round")
             {
@@ -61,7 +227,50 @@ namespace Blackjack_Game
 
                 if (this.Type == 0)
                     PlaySP();
+                else if (this.Type == 1)
+                    PlayHost();
             }
+        }
+
+        private void PlayHost()
+        {
+            theDeck = new Deck();
+            theDeck.Shuffle();
+
+            btnBegin.Visible = false;
+
+            // Deal starting cards
+            for (int i = 0; i < 4; i++)
+            {
+                Card tmp = theDeck.DealCard();
+                if (i % 2 == 0)
+                {
+                    you.GetCard(tmp);
+                    gs.SendCardInfo(new Tuple<Card, int>(tmp, 0));
+                }
+                else
+                {
+                    opponent.GetCard(tmp);
+                    gs.SendCardInfo(new Tuple<Card, int>(tmp, 1));
+                }
+
+                SetLabelValues();
+                lblPot.Text = thePot.ToString();
+            }
+
+            // Update picture boxes
+            picYou1.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[0].ToString());
+            picOpp1.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[0].ToString());
+            picYou2.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[1].ToString());
+            picOpp2.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[1].ToString());
+
+            // Player Turn
+            yourTurn = true;
+            yourWorker.WorkerSupportsCancellation = true;
+            yourWorker.DoWork += YourWorker_DoWork;
+            yourWorker.RunWorkerCompleted += YourWorker_RunWorkerCompleted;
+            yourWorker.RunWorkerAsync();
+            PlayerTurn();
         }
 
         private void ClearResults()
@@ -85,43 +294,67 @@ namespace Blackjack_Game
 
         private void btnHit_Click(object sender, EventArgs e)
         {
-            Card tmp = theDeck.DealCard();
-            if (tmp is Ace && you.CardValue >= 11)
+            if (Type < 2)
             {
-                Ace ace = (Ace)tmp;
-                ace.SwapValue();
-                tmp = ace;
-            }
-            else if (tmp.Value + you.CardValue > 21)
-            {
-                foreach (Card tmp2 in you.myCards)
+                Card tmp = theDeck.DealCard();
+                if (tmp is Ace && you.CardValue >= 11)
                 {
-                    if (tmp2 is Ace)
+                    Ace ace = (Ace)tmp;
+                    ace.SwapValue();
+                    tmp = ace;
+                }
+                else if (tmp.Value + you.CardValue > 21)
+                {
+                    foreach (Card tmp2 in you.myCards)
                     {
-                        Ace ace2 = (Ace)tmp2;
-                        if (ace2.Value == 11)
+                        if (tmp2 is Ace)
                         {
-                            ace2.SwapValue();
-                            you.CardValue -= 10;
+                            Ace ace2 = (Ace)tmp2;
+                            if (ace2.Value == 11)
+                            {
+                                ace2.SwapValue();
+                                you.CardValue -= 10;
+                            }
                         }
                     }
                 }
+
+                you.GetCard(tmp);
+                SetLabelValues();
+
+                if (Type == 1)
+                {
+                    gs.SendCardInfo(new Tuple<Card, int>(tmp, 0));
+                    gs.SendPlayerInfo(you);
+                }
+
+                if (you.myCards.Count == 3)
+                    picYou3.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[2].ToString());
+                else if (you.myCards.Count == 4)
+                    picYou4.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[3].ToString());
+                else if (you.myCards.Count == 5)
+                    picYou5.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[4].ToString());
             }
+            else
+            {
 
-            you.GetCard(tmp);
-            SetLabelValues();
-
-            if (you.myCards.Count == 3)
-                picYou3.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[2].ToString());
-            else if (you.myCards.Count == 4)
-                picYou4.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[3].ToString());
-            else if (you.myCards.Count == 5)
-                picYou5.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + you.myCards[4].ToString());
+            }            
         }
 
         private void btnStand_Click(object sender, EventArgs e)
         {
-            yourTurn = false;
+            if (Type == 0)
+                yourTurn = false;
+            else if (Type == 1)
+            {
+                yourTurn = false;
+                gs.EndTurn();
+            }
+            else
+            {
+                gc.EndGame(you);
+                EndGame(3);
+            }
         }
 
         public void SetLabelValues()
@@ -309,8 +542,7 @@ namespace Blackjack_Game
                         thePot = 0;
                         SetLabelValues();
                         lblPot.Text = "You Win!";
-                    }
-                        
+                    }                        
                     else if (you.CardValue < opponent.CardValue)
                     {
                         opponent.TakePot(thePot);
@@ -328,24 +560,38 @@ namespace Blackjack_Game
                     break;
             }
 
-            if (you.Chips > 0 && opponent.Chips > 0)
+            if (Type < 2)
             {
-                btnBegin.Text = "Next Round";
-                btnBegin.Visible = true;
+                if (you.Chips > 0 && opponent.Chips > 0)
+                {
+                    btnBegin.Text = "Next Round";
+                    btnBegin.Visible = true;
+                }
+                else if (you.Chips == 0)
+                {
+                    lblTitle.Text = "Game Over";
+                    lblTitle.Visible = true;
+                }
+                else if (opponent.Chips == 0)
+                {
+                    lblTitle.Text = "Game Over";
+                    lblTitle.Visible = true;
+                }
             }
-            else if (you.Chips == 0)
+            else
             {
-                lblTitle.Text = "Game Over";
-                lblTitle.Visible = true;
+                ClearResults();
             }
+            
         }
 
         private void YourWorker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
         {
             btnHit.Visible = false;
             btnStand.Visible = false;
-            if (!roundOver)
-                OpponentTurn();
+            if (Type == 0)
+                if (!roundOver)
+                    OpponentTurn();
         }
 
         private void YourWorker_DoWork(object? sender, DoWorkEventArgs e)

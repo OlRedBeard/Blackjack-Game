@@ -49,8 +49,10 @@ namespace Blackjack_Game
                 comm.ReceivedMessage += Comm_ReceivedMessage;
                 comm.UserListUpdate += Comm_UserListUpdate;
                 comm.ChallengeReceived += Comm_ChallengeReceived;
+                comm.StartGame += Comm_StartGame;
             }
         }
+
 
         private void btnSendMessage_Click(object sender, EventArgs e)
         {
@@ -74,6 +76,19 @@ namespace Blackjack_Game
         {
             Challenge ch = new Challenge(this.Username, opp, ip);
             this.Invoke(new Action(() => comm.SendChallenge(ch)));
+        }
+
+        private void btnAccept_Click(object sender, EventArgs e)
+        {
+            if (cmbChallenges.SelectedItem != null)
+            {
+                Challenge ch = (Challenge)cmbChallenges.SelectedItem;
+                comm.RespondToChallenge(ch, 1);
+            }
+        }
+        private void btnDecline_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void PopulateCmb(List<string> userList)
@@ -110,6 +125,26 @@ namespace Blackjack_Game
             lblIncChallenge.Visible = true;
             lblIncChallenge.Text = "New Challenge Received!";
             cmbChallenges.DataSource = Challenges;
+        }
+
+        private void BeginGame(Challenge c)
+        {
+            if (c.Issuer == this.Username)
+            {
+                GameBoard gb = new GameBoard(c, this.Username);
+                gb.Show();
+            }
+            else
+            {
+                Thread.Sleep(1000);
+                GameBoard gb = new GameBoard(c, this.Username);
+                gb.Show();
+            }
+        }
+
+        private void Comm_StartGame(Tuple<Challenge, int> message)
+        {
+            this.Invoke(new Action(() => BeginGame(message.Item1)));
         }
 
         private void Comm_ChallengeReceived(Challenge message)

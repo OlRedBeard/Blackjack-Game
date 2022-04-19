@@ -9,6 +9,7 @@ namespace BlackjackClasses
     public class Player
     {
         public int Chips { get; set; }
+        public string Name { get; set; }
 
         public int CardValue = 0;
         public List<Card> myCards;
@@ -18,6 +19,11 @@ namespace BlackjackClasses
             this.Chips = 100;
             this.CardValue = 0;
             this.myCards = new List<Card>();
+        }
+
+        public void SetName(string name)
+        {
+            this.Name = name;
         }
 
         public int Bet(int bet)
