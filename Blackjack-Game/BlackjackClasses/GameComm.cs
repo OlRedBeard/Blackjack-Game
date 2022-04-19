@@ -45,6 +45,12 @@ namespace BlackjackClasses
             bgw.RunWorkerAsync();
         }
 
+        public void RequestCard(int x)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(writer.BaseStream, x);
+        }
+
         public void EndGame(Player you)
         {
             IFormatter formatter = new BinaryFormatter();
@@ -65,34 +71,37 @@ namespace BlackjackClasses
 
                 try
                 {
-                    IFormatter formatter = new BinaryFormatter();
-                    object o = (object)formatter.Deserialize(nStream);
-
-                    if (o is Tuple<Card, int>)
+                    while (true)
                     {
-                        Tuple<Card, int> tuple = (Tuple<Card, int>)o;
-                        if (tuple.Item2 == 0)
-                        {
-                            OpponentCard(tuple.Item1);
-                        }
-                        else
-                        {
-                            PlayerCard(tuple.Item1);
-                        }
-                    }
-                    else if (o is Player)
-                    {
+                        IFormatter formatter = new BinaryFormatter();
+                        object o = (object)formatter.Deserialize(nStream);
 
-                    }
-                    else if (o is int)
-                    {
-                        int tmp = (int)o;
-
-                        if (tmp == 1)
+                        if (o is Tuple<Card, int>)
                         {
-                            YourTurn(true);
+                            Tuple<Card, int> tuple = (Tuple<Card, int>)o;
+                            if (tuple.Item2 == 0)
+                            {
+                                OpponentCard(tuple.Item1);
+                            }
+                            else
+                            {
+                                PlayerCard(tuple.Item1);
+                            }
                         }
-                    }
+                        else if (o is Player)
+                        {
+
+                        }
+                        else if (o is int)
+                        {
+                            int tmp = (int)o;
+
+                            if (tmp == 1)
+                            {
+                                YourTurn(true);
+                            }
+                        }
+                    }                    
                 }
                 catch
                 {

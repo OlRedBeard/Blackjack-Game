@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace BlackjackClasses
 {
+    [Serializable]
     public class Player
     {
         public int Chips { get; set; }

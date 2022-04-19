@@ -338,6 +338,7 @@
             this.Name = "GameBoard";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GameBoard";
+            this.Load += new System.EventHandler(this.GameBoard_Load);
             ((System.ComponentModel.ISupportInitialize)(this.picYou1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picYou2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picYou3)).EndInit();

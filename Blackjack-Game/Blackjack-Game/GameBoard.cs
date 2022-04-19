@@ -19,6 +19,7 @@ namespace Blackjack_Game
         TcpListener listener;
         GameServer gs;
         GameComm gc;
+        public static List<GameServer> clients = new List<GameServer> ();
 
         public Deck theDeck;
         public Player you = new Player();
@@ -70,7 +71,6 @@ namespace Blackjack_Game
                 this.Text = "Blackjack - Guest";
                 opponent = new Player();
                 opponent.SetName(theChallenge.Issuer);
-                SetupComms(theChallenge.IssuerIP);
             }
 
             // Set visibility
@@ -87,16 +87,32 @@ namespace Blackjack_Game
             gc.PlayerCard += Gc_PlayerCard;
             gc.OpponentCard += Gc_OpponentCard;
             gc.UpdateOpponent += Gc_UpdateOpponent;
+            gc.YourTurn += Gc_YourTurn;
+        }
+
+        private void YourTurn(bool yourTurn)
+        {
+            this.yourTurn = yourTurn;
+            yourWorker.WorkerSupportsCancellation = true;
+            yourWorker.DoWork += YourWorker_DoWork;
+            yourWorker.RunWorkerCompleted += YourWorker_RunWorkerCompleted;
+            yourWorker.RunWorkerAsync();
+            PlayerTurn();
+        }
+
+        private void Gc_YourTurn(bool yourTurn)
+        {
+            this.Invoke(new Action(() => YourTurn(yourTurn)));
         }
 
         private void Gc_UpdateOpponent(Player opponent)
         {
-            throw new NotImplementedException();
+            this.Invoke(new Action(() => UpdateOpponent(opponent)));
         }
 
         private void Gc_OpponentCard(Card card)
         {
-            throw new NotImplementedException();
+            this.Invoke(new Action(() => UpdateOppCards(card)));
         }
 
         private void Gc_PlayerCard(Card card)
@@ -108,6 +124,52 @@ namespace Blackjack_Game
         {
             if (IsHandleCreated)
                 this.Invoke(new Action(() => PlayGuest()));
+        }
+
+        private void UpdateOpponent(Player opp)
+        {
+            this.opponent = opp;
+        }
+
+        private void UpdateOppCards(Card card)
+        {
+            if (card is Ace && opponent.CardValue >= 11)
+            {
+                Ace ace = (Ace)card;
+                ace.SwapValue();
+                card = ace;
+            }
+            else if (card.Value + opponent.CardValue > 21)
+            {
+                foreach (Card tmp2 in opponent.myCards)
+                {
+                    if (tmp2 is Ace && card.Value + opponent.CardValue > 21)
+                    {
+                        Ace ace2 = (Ace)tmp2;
+                        if (ace2.Value == 11)
+                        {
+                            ace2.SwapValue();
+                            opponent.CardValue -= 10;
+                        }
+                    }
+                }
+            }
+
+            opponent.GetCard(card);
+            SetLabelValues();
+
+            if (opponent.myCards.Count == 1)
+                picOpp1.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[0].ToString());
+            else if (opponent.myCards.Count == 2)
+                picOpp2.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[1].ToString());
+            else if (opponent.myCards.Count == 3)
+                picOpp3.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[2].ToString());
+            else if (opponent.myCards.Count == 4)
+                picOpp4.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[3].ToString());
+            else if (opponent.myCards.Count == 5)
+                picOpp5.Image = Image.FromFile(Environment.CurrentDirectory + "/images/" + opponent.myCards[4].ToString());
+
+            OpponentCheck();
         }
         
         private void UpdateMyCards(Card card)
@@ -178,6 +240,7 @@ namespace Blackjack_Game
                 gs = new GameServer(listener);
                 gs.OpponenentConnected += Gs_OpponenentConnected;
                 gs.OpponentUpdate += Gs_OpponentUpdate;
+                gs.RequestCard += Gs_RequestCard;
 
                 // Setup labels
                 lblTitle.Visible = false;
@@ -189,17 +252,29 @@ namespace Blackjack_Game
             }
         }
 
+        private void Gs_RequestCard()
+        {
+            Card tmp = theDeck.DealCard();
+            UpdateOppCards(tmp);
+            SendCardInfo(new Tuple<Card,int>(tmp, 1));
+        }
+
         private void Gs_OpponentUpdate(Player opponent)
         {
             this.opponent = opponent;
             if (opponent.CardValue > 21)
+            {
                 EndGame(1);
+            }
             else
+            {
                 EndGame(3);
+            }                
         }
 
         private void Gs_OpponenentConnected(GameServer client)
         {
+            clients.Add(client);
             lblOppName.Text = opponent.Name;
             lblTitle.Visible = true;
             lblPot.Text = thePot.ToString();
@@ -208,6 +283,7 @@ namespace Blackjack_Game
             gs = new GameServer(listener);
             gs.OpponenentConnected += Gs_OpponenentConnected;
             gs.OpponentUpdate += Gs_OpponentUpdate;
+            gs.RequestCard += Gs_RequestCard;
         }
 
         private void btnBegin_Click(object sender, EventArgs e)
@@ -232,6 +308,22 @@ namespace Blackjack_Game
             }
         }
 
+        private void SendCardInfo(Tuple<Card, int> msg)
+        {
+            foreach (GameServer gserv in clients)
+            {
+                gserv.SendCardInfo(msg);
+            }
+        }
+
+        private void SendPlayerInfo(Player p)
+        {
+            foreach (GameServer gserv in clients)
+            {
+                gserv.SendPlayerInfo(p);
+            }
+        }
+
         private void PlayHost()
         {
             theDeck = new Deck();
@@ -246,12 +338,12 @@ namespace Blackjack_Game
                 if (i % 2 == 0)
                 {
                     you.GetCard(tmp);
-                    gs.SendCardInfo(new Tuple<Card, int>(tmp, 0));
+                    SendCardInfo(new Tuple<Card, int>(tmp, 0));
                 }
                 else
                 {
                     opponent.GetCard(tmp);
-                    gs.SendCardInfo(new Tuple<Card, int>(tmp, 1));
+                    SendCardInfo(new Tuple<Card, int>(tmp, 1));
                 }
 
                 SetLabelValues();
@@ -324,8 +416,8 @@ namespace Blackjack_Game
 
                 if (Type == 1)
                 {
-                    gs.SendCardInfo(new Tuple<Card, int>(tmp, 0));
-                    gs.SendPlayerInfo(you);
+                    SendCardInfo(new Tuple<Card, int>(tmp, 0));
+                    SendPlayerInfo(you);
                 }
 
                 if (you.myCards.Count == 3)
@@ -337,8 +429,16 @@ namespace Blackjack_Game
             }
             else
             {
-
+                gc.RequestCard(0);
             }            
+        }
+
+        private void EndTurn()
+        {
+            foreach (GameServer gserv in clients)
+            {
+                gserv.EndTurn();
+            }
         }
 
         private void btnStand_Click(object sender, EventArgs e)
@@ -348,7 +448,7 @@ namespace Blackjack_Game
             else if (Type == 1)
             {
                 yourTurn = false;
-                gs.EndTurn();
+                EndTurn();
             }
             else
             {
@@ -609,6 +709,12 @@ namespace Blackjack_Game
                     break;
                 }
             }
+        }
+
+        private void GameBoard_Load(object sender, EventArgs e)
+        {
+            if (Type == 2)
+                SetupComms(theChallenge.IssuerIP);
         }
     }
 }
