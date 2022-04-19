@@ -14,8 +14,6 @@ namespace BlackjackClasses
     public class ServerManager
     {
         public string name = "";
-
-        // String for latest message
         private string latest = "";
 
         public static TcpListener listener;
@@ -35,6 +33,12 @@ namespace BlackjackClasses
 
         public event ClientDisconnectedEventHandler ClientDisconnected;
         public delegate void ClientDisconnectedEventHandler(ServerManager client);
+
+        public event ReceivedMessageEventHandler ReceivedMessage;
+        public delegate void ReceivedMessageEventHandler(ServerManager client, string message);
+
+        public event ChallengeIssuedEventHandler ChallengeIssued;
+        public delegate void ChallengeIssuedEventHandler(ServerManager client, Challenge message);
 
         public ServerManager(TcpListener listen)
         {
@@ -59,6 +63,32 @@ namespace BlackjackClasses
             }
         }
 
+        public void SendMessage(Challenge message)
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(writer.BaseStream, message);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public void SendClientList(List<string> clientNames)
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(writer.BaseStream, clientNames);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         private void ServerWorker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
         {
             try
@@ -67,6 +97,10 @@ namespace BlackjackClasses
                     NewClientConnected(this);
                 else if (e.ProgressPercentage == 1)
                     SetClientName(this);
+                else if (e.ProgressPercentage == 2)
+                    ReceivedMessage(this, (string)e.UserState);
+                else if (e.ProgressPercentage == 3)
+                    ChallengeIssued(this, (Challenge)e.UserState);
                 else if (e.ProgressPercentage == 9)
                     ClientDisconnected(this);
             }
@@ -107,7 +141,7 @@ namespace BlackjackClasses
                             if (cmdCheck != "!")
                             {
                                 latest = (string)o;
-
+                                serverWorker.ReportProgress(2, latest);
                             }
                             else
                             {
@@ -117,6 +151,10 @@ namespace BlackjackClasses
                                     serverWorker.ReportProgress(1);
                                 }
                             }
+                        }
+                        else if (o is Challenge)
+                        {
+                            serverWorker.ReportProgress(3, (Challenge)o);
                         }
                     }
                     catch (Exception ex)

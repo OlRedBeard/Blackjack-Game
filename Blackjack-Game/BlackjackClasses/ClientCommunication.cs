@@ -30,6 +30,12 @@ namespace BlackjackClasses
         public event ReceivedMessageEventHandler ReceivedMessage;
         public delegate void ReceivedMessageEventHandler(string message);
 
+        public event UserListUpdateEventHandler UserListUpdate;
+        public delegate void UserListUpdateEventHandler(List<string> message);
+
+        public event ChallengeReceivedEventHandler ChallengeReceived;
+        public delegate void ChallengeReceivedEventHandler(Challenge message);
+
         public ClientCommunication(string serv)
         {
             this.serverName = serv;
@@ -38,6 +44,18 @@ namespace BlackjackClasses
             worker.ProgressChanged += Worker_ProgressChanged;
             worker.DoWork += Worker_DoWork;
             worker.RunWorkerAsync();
+        }
+
+        public void SendMessage(string msg)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(writer.BaseStream, msg);
+        }
+
+        public void SendChallenge(Challenge challengeInfo)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(writer.BaseStream, challengeInfo);
         }
 
         private void Worker_DoWork(object? sender, DoWorkEventArgs e)
@@ -63,7 +81,15 @@ namespace BlackjackClasses
                         // Check object types
                         if (o is string)
                         {
-
+                            ReceivedMessage((string)o);
+                        }
+                        else if (o is List<string>)
+                        {
+                            UserListUpdate((List<string>)o);
+                        }
+                        else if (o is Challenge)
+                        {
+                            ChallengeReceived((Challenge)o);
                         }
                     }
                 }
