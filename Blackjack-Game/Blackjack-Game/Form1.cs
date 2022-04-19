@@ -84,11 +84,17 @@ namespace Blackjack_Game
             {
                 Challenge ch = (Challenge)cmbChallenges.SelectedItem;
                 comm.RespondToChallenge(ch, 1);
+                Challenges.Remove(ch);
             }
         }
         private void btnDecline_Click(object sender, EventArgs e)
         {
-
+            if (cmbChallenges.SelectedItem != null)
+            {
+                Challenge ch = (Challenge)cmbChallenges.SelectedItem;
+                //comm.RespondToChallenge(ch, 1);
+                Challenges.Remove(ch);
+            }
         }
 
         private void PopulateCmb(List<string> userList)

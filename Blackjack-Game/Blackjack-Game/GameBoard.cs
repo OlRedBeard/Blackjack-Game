@@ -133,6 +133,12 @@ namespace Blackjack_Game
 
         private void UpdateOppCards(Card card)
         {
+            if (opponent.myCards.Count == 0)
+            {
+                ClearPictures();
+                lblPot.Visible = false;
+            }
+
             if (card is Ace && opponent.CardValue >= 11)
             {
                 Ace ace = (Ace)card;
@@ -222,8 +228,6 @@ namespace Blackjack_Game
         private void PlayGuest()
         {
             lblOppName.Text = theChallenge.Issuer;
-            thePot += you.Bet(10);
-            thePot += opponent.Bet(10);
             SetLabelValues();
             lblPot.Text = thePot.ToString();
         }
@@ -241,6 +245,7 @@ namespace Blackjack_Game
                 gs.OpponenentConnected += Gs_OpponenentConnected;
                 gs.OpponentUpdate += Gs_OpponentUpdate;
                 gs.RequestCard += Gs_RequestCard;
+                gs.ClientLeft += Gs_ClientLeft;
 
                 // Setup labels
                 lblTitle.Visible = false;
@@ -284,6 +289,13 @@ namespace Blackjack_Game
             gs.OpponenentConnected += Gs_OpponenentConnected;
             gs.OpponentUpdate += Gs_OpponentUpdate;
             gs.RequestCard += Gs_RequestCard;
+            gs.ClientLeft += Gs_ClientLeft;
+        }
+
+        private void Gs_ClientLeft()
+        {
+            MessageBox.Show("Client Left, Game Ending.");
+            this.Close();
         }
 
         private void btnBegin_Click(object sender, EventArgs e)
@@ -337,6 +349,28 @@ namespace Blackjack_Game
                 Card tmp = theDeck.DealCard();
                 if (i % 2 == 0)
                 {
+                    if (tmp is Ace && you.CardValue >= 11)
+                    {
+                        Ace ace = (Ace)tmp;
+                        ace.SwapValue();
+                        tmp = ace;
+                    }
+                    else if (tmp.Value + you.CardValue > 21)
+                    {
+                        foreach (Card tmp2 in you.myCards)
+                        {
+                            if (tmp2 is Ace)
+                            {
+                                Ace ace2 = (Ace)tmp2;
+                                if (ace2.Value == 11)
+                                {
+                                    ace2.SwapValue();
+                                    you.CardValue -= 10;
+                                }
+                            }
+                        }
+                    }
+
                     you.GetCard(tmp);
                     SendCardInfo(new Tuple<Card, int>(tmp, 0));
                 }
@@ -363,6 +397,28 @@ namespace Blackjack_Game
             yourWorker.RunWorkerCompleted += YourWorker_RunWorkerCompleted;
             yourWorker.RunWorkerAsync();
             PlayerTurn();
+        }
+
+        private void ClearPictures()
+        {
+            picYou1.Image = null;
+            picYou2.Image = null;
+            picYou3.Image = null;
+            picYou4.Image = null;
+            picYou5.Image = null;
+            picOpp1.Image = null;
+            picOpp2.Image = null;
+            picOpp3.Image = null;
+            picOpp4.Image = null;
+            picOpp5.Image = null;
+        }
+
+        private void ClearValues()
+        {
+            you.myCards.Clear();
+            you.CardValue = 0;
+            opponent.myCards.Clear();
+            opponent.CardValue = 0;
         }
 
         private void ClearResults()
@@ -506,7 +562,10 @@ namespace Blackjack_Game
             thePot += you.Bet(10);
             thePot += opponent.Bet(10);
             SetLabelValues();
+            lblPot.Visible = true;
             lblPot.Text = thePot.ToString();
+            lblTitle.Text = "THE POT";
+            lblTitle.Visible = true;
             btnHit.Visible = true;
             btnHit.Enabled = true;
             btnStand.Visible = true;
@@ -569,7 +628,7 @@ namespace Blackjack_Game
             }
             else
             {
-
+                lblTitle.Text = "Waiting for Host...";
             }
         }
 
@@ -680,7 +739,23 @@ namespace Blackjack_Game
             }
             else
             {
-                ClearResults();
+                if (you.Chips > 0 && opponent.Chips > 0)
+                {
+                    lblTitle.Text = "Waiting";
+                    lblTitle.Visible = true;
+                }
+                else if (you.Chips == 0)
+                {
+                    lblTitle.Text = "Game Over";
+                    lblTitle.Visible = true;
+                }
+                else if (opponent.Chips == 0)
+                {
+                    lblTitle.Text = "Game Over";
+                    lblTitle.Visible = true;
+                }
+
+                ClearValues();
             }
             
         }
@@ -715,6 +790,23 @@ namespace Blackjack_Game
         {
             if (Type == 2)
                 SetupComms(theChallenge.IssuerIP);
+        }
+
+        private void GameBoard_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (Type == 0)
+            {
+                this.Close();
+            }
+            else if (Type == 1)
+            {
+
+            }
+            else
+            {
+                gc.LeftGame("a");
+                gc.done = true;
+            }
         }
     }
 }

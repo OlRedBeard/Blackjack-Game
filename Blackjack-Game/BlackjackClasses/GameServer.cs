@@ -29,6 +29,9 @@ namespace BlackjackClasses
         public delegate void RequestCardEventHandler();
         public event RequestCardEventHandler RequestCard;
 
+        public delegate void ClientLeftEventHandler();
+        public event ClientLeftEventHandler ClientLeft;
+
         bool done = false;
 
         public GameServer(TcpListener listener)
@@ -92,6 +95,8 @@ namespace BlackjackClasses
                     OpponentUpdate((Player)e.UserState);
                 else if (e.ProgressPercentage == 2)
                     RequestCard();
+                else if (e.ProgressPercentage == 3)
+                    ClientLeft();
             }
             catch (Exception ex)
             {
@@ -121,9 +126,14 @@ namespace BlackjackClasses
                         {
                             bgw.ReportProgress(1, (Player)o);
                         }
-                        if (o is int)
+                        else if (o is int)
                         {
                             bgw.ReportProgress(2);
+                        }
+                        else if (o is string)
+                        {
+                            bgw.ReportProgress(3);
+                            done = true;
                         }
                     }
                     catch
@@ -135,7 +145,7 @@ namespace BlackjackClasses
             }
             catch (Exception ex)
             {
-
+                bgw.ReportProgress(9);
             }
         }
     }

@@ -36,6 +36,8 @@ namespace BlackjackClasses
         public event OpponentDoneEventHandler YourTurn;
         public delegate void OpponentDoneEventHandler(bool yourTurn);
 
+        public bool done = false;
+
         public GameComm(string servername)
         {
             this.serverName = servername;
@@ -43,6 +45,12 @@ namespace BlackjackClasses
             bgw.WorkerSupportsCancellation = true;
             bgw.DoWork += Bgw_DoWork;
             bgw.RunWorkerAsync();
+        }
+
+        public void LeftGame(string y)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(writer.BaseStream, y);
         }
 
         public void RequestCard(int x)
@@ -71,7 +79,7 @@ namespace BlackjackClasses
 
                 try
                 {
-                    while (true)
+                    while (!done)
                     {
                         IFormatter formatter = new BinaryFormatter();
                         object o = (object)formatter.Deserialize(nStream);
@@ -101,10 +109,12 @@ namespace BlackjackClasses
                                 YourTurn(true);
                             }
                         }
-                    }                    
+                    }
+                    done = true;
                 }
                 catch
                 {
+                    done = true;
                     throw;
                 }
             }
