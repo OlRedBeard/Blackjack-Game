@@ -70,6 +70,19 @@ namespace BlackjackClasses
             }
         }
 
+        public void SendEnd()
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(writer.BaseStream, 0);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         public void SendPlayerInfo(Player p)
         {
             try
@@ -134,6 +147,9 @@ namespace BlackjackClasses
                         {
                             bgw.ReportProgress(3);
                             done = true;
+                            listener.Stop();
+                            socketStream.Close();
+                            socket.Close();
                         }
                     }
                     catch

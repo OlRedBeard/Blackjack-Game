@@ -39,6 +39,9 @@ namespace BlackjackClasses
         public event HostGameEventHandler StartGame;
         public delegate void HostGameEventHandler(Tuple<Challenge, int> message);
 
+        public event EndChallengeEventHandler EndChallenge;
+        public delegate void EndChallengeEventHandler(Tuple<Challenge, int> message);
+
         public ClientCommunication(string serv)
         {
             this.serverName = serv;
@@ -103,7 +106,11 @@ namespace BlackjackClasses
                         }
                         else if (o is Tuple<Challenge, int>)
                         {
-                            StartGame((Tuple<Challenge, int>)o);
+                            Tuple<Challenge, int> tup = (Tuple<Challenge, int>)o;
+                            if (tup.Item2 == 1)
+                                StartGame((Tuple<Challenge, int>)o);
+                            else
+                                EndChallenge((Tuple<Challenge, int>)o);
                         }
                     }
                 }

@@ -38,6 +38,7 @@ namespace Blackjack_Server
                 mngr.ReceivedMessage += Mngr_ReceivedMessage;
                 mngr.ChallengeIssued += Mngr_ChallengeIssued;
                 mngr.ChallengeAccepted += Mngr_ChallengeAccepted;
+                mngr.ChallengeDeclined += Mngr_ChallengeDeclined;
 
                 lstMessages.Items.Add("** Server has Started **");
                 ScrollListBox();
@@ -46,6 +47,26 @@ namespace Blackjack_Server
             {
                 throw;
             }
+        }
+
+        private void Mngr_ChallengeDeclined(ServerManager client, Tuple<Challenge, int> message)
+        {
+            foreach (ServerManager cli in lstClients)
+            {
+                if (cli.name == message.Item1.Issuer)
+                {
+                    cli.SendMessage(message);
+                }
+                else if (cli.name == message.Item1.Recipient)
+                {
+                    cli.SendMessage(message);
+                }
+            }
+
+            string msg = "** " + message.Item1.Recipient + " declined " + message.Item1.Issuer + "'s challenge. **";
+            ServerMessage(msg);
+            lstMessages.Items.Add(msg);
+            ScrollListBox();
         }
 
         private void ServerMessage(string message)
@@ -139,7 +160,8 @@ namespace Blackjack_Server
             mngr.ClientDisconnected += Mngr_ClientDisconnected;
             mngr.ReceivedMessage += Mngr_ReceivedMessage;
             mngr.ChallengeIssued += Mngr_ChallengeIssued;
-            mngr.ChallengeAccepted += Mngr_ChallengeAccepted;
+            mngr.ChallengeAccepted += Mngr_ChallengeAccepted; 
+            mngr.ChallengeDeclined += Mngr_ChallengeDeclined;
         }
 
         private void Mngr_ClientDisconnected(ServerManager client)

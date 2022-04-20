@@ -36,6 +36,9 @@ namespace BlackjackClasses
         public event OpponentDoneEventHandler YourTurn;
         public delegate void OpponentDoneEventHandler(bool yourTurn);
 
+        public event HostLeftEventHandler HostLeft;
+        public delegate void HostLeftEventHandler();
+
         public bool done = false;
 
         public GameComm(string servername)
@@ -104,13 +107,16 @@ namespace BlackjackClasses
                         {
                             int tmp = (int)o;
 
-                            if (tmp == 1)
+                            if (tmp == 0)
+                            {
+                                HostLeft();
+                            }
+                            else if (tmp == 1)
                             {
                                 YourTurn(true);
                             }
                         }
                     }
-                    done = true;
                 }
                 catch
                 {
@@ -120,7 +126,7 @@ namespace BlackjackClasses
             }
             catch (Exception ex)
             {
-                throw;
+                done = true;
             }
         }
     }

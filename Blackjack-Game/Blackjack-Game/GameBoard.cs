@@ -33,6 +33,9 @@ namespace Blackjack_Game
         BackgroundWorker yourWorker = new BackgroundWorker();
         BackgroundWorker oppWorker = new BackgroundWorker();
 
+        public event GameOverEventHandler GameOver;
+        public delegate void GameOverEventHandler(Challenge ch);
+
         public GameBoard(int type)
         {
             InitializeComponent();
@@ -88,6 +91,13 @@ namespace Blackjack_Game
             gc.OpponentCard += Gc_OpponentCard;
             gc.UpdateOpponent += Gc_UpdateOpponent;
             gc.YourTurn += Gc_YourTurn;
+            gc.HostLeft += Gc_HostLeft;
+        }
+
+        private void Gc_HostLeft()
+        {
+            MessageBox.Show("Host left, Game Ending");
+            this.Invoke(new Action(() => this.Close()));
         }
 
         private void YourTurn(bool yourTurn)
@@ -317,6 +327,14 @@ namespace Blackjack_Game
                     PlaySP();
                 else if (this.Type == 1)
                     PlayHost();
+            }
+        }
+
+        private void SendGameEnd()
+        {
+            foreach (GameServer gserv in clients)
+            {
+                gserv.SendEnd();
             }
         }
 
@@ -800,12 +818,14 @@ namespace Blackjack_Game
             }
             else if (Type == 1)
             {
-
+                GameOver(this.theChallenge);
+                SendGameEnd();
             }
             else
             {
                 gc.LeftGame("a");
                 gc.done = true;
+                //GameOver(this.theChallenge);
             }
         }
     }

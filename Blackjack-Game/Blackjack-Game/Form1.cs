@@ -8,6 +8,7 @@ namespace Blackjack_Game
         public string Username = "";
         public List<string> Users = new List<string>();
         public List<Challenge> Challenges = new List<Challenge>();
+        public List<Challenge> SentChallenges = new List<Challenge>();
 
         public Form1()
         {
@@ -27,6 +28,7 @@ namespace Blackjack_Game
         {
             pnlChat.Visible = true;
             lblIncChallenge.Visible = false;
+            btnCancelCh.Visible = false;
         }
 
         private void btnStart_Click(object sender, EventArgs e)
@@ -50,9 +52,54 @@ namespace Blackjack_Game
                 comm.UserListUpdate += Comm_UserListUpdate;
                 comm.ChallengeReceived += Comm_ChallengeReceived;
                 comm.StartGame += Comm_StartGame;
+                comm.EndChallenge += Comm_EndChallenge;
             }
         }
 
+        private void EndChallenge(Challenge c)
+        {
+            comm.RespondToChallenge(c, 0);
+        }
+
+        private void DeleteChallenge(Challenge c)
+        {
+            if (c.Issuer == Username)
+            {
+                SentChallenges.Clear();
+                btnCancelCh.Visible = false;
+            }
+                
+            else if (c.Recipient == Username)
+            {
+                Challenge x = null;
+
+                foreach (Challenge ch in Challenges)
+                {
+                    if (ch.Issuer == c.Issuer)
+                        x = c;
+                }
+
+                if (x != null)
+                {
+                    //List<Challenge> tmp = Challenges;
+                    Challenge z = Challenges.Where(y => y.Issuer == c.Issuer).FirstOrDefault();
+                    Challenges.Remove(z);
+                    //Challenges = tmp;
+                }
+                    
+
+                cmbChallenges.DataSource = null;
+                cmbChallenges.DataSource = Challenges;
+
+                if (Challenges.Count == 0)
+                    lblIncChallenge.Text = "";
+            }
+        }
+
+        private void Comm_EndChallenge(Tuple<Challenge, int> message)
+        {
+            this.Invoke(new Action(() => DeleteChallenge(message.Item1)));
+        }
 
         private void btnSendMessage_Click(object sender, EventArgs e)
         {
@@ -66,15 +113,23 @@ namespace Blackjack_Game
         {
             if (cmbUsers.SelectedItem != null)
             {
-                ChallengeForm cf = new ChallengeForm(cmbUsers.Text);
-                cf.ChallengeInfo += Cf_ChallengeInfo;
-                cf.Show();
+                bool exists = false;
+                if (SentChallenges.Count < 1)
+                {
+                    ChallengeForm cf = new ChallengeForm(cmbUsers.Text);
+                    cf.ChallengeInfo += Cf_ChallengeInfo;
+                    cf.Show();
+                }
+                else
+                    MessageBox.Show("Only one challenge at a time");
             }
         }
 
         private void Cf_ChallengeInfo(string opp, string ip)
         {
             Challenge ch = new Challenge(this.Username, opp, ip);
+            this.Invoke(new Action(() => SentChallenges.Add(ch)));
+            this.Invoke(new Action(() => btnCancelCh.Visible = true));
             this.Invoke(new Action(() => comm.SendChallenge(ch)));
         }
 
@@ -84,16 +139,16 @@ namespace Blackjack_Game
             {
                 Challenge ch = (Challenge)cmbChallenges.SelectedItem;
                 comm.RespondToChallenge(ch, 1);
-                Challenges.Remove(ch);
             }
         }
+
         private void btnDecline_Click(object sender, EventArgs e)
         {
             if (cmbChallenges.SelectedItem != null)
             {
                 Challenge ch = (Challenge)cmbChallenges.SelectedItem;
-                //comm.RespondToChallenge(ch, 1);
-                Challenges.Remove(ch);
+                comm.RespondToChallenge(ch, 0);
+                //Challenges.Remove(ch);
             }
         }
 
@@ -109,6 +164,8 @@ namespace Blackjack_Game
             }
 
             cmbUsers.DataSource = Users;
+            if (cmbUsers.Items.Count > 0)
+                cmbUsers.SelectedIndex = 0;
         }
 
         private void ScrollMessageList()
@@ -129,7 +186,11 @@ namespace Blackjack_Game
         {
             Challenges.Add(c);
             lblIncChallenge.Visible = true;
-            lblIncChallenge.Text = "New Challenge Received!";
+            if (Challenges.Count == 1)
+                lblIncChallenge.Text = $"{Challenges.Count} New Challenge!";
+            else
+                lblIncChallenge.Text = $"{Challenges.Count} New Challenges!";
+            cmbChallenges.DataSource = null;
             cmbChallenges.DataSource = Challenges;
         }
 
@@ -138,14 +199,21 @@ namespace Blackjack_Game
             if (c.Issuer == this.Username)
             {
                 GameBoard gb = new GameBoard(c, this.Username);
+                gb.GameOver += Gb_GameOver;
                 gb.Show();
             }
             else
             {
                 Thread.Sleep(1000);
                 GameBoard gb = new GameBoard(c, this.Username);
+                //gb.GameOver += Gb_GameOver;
                 gb.Show();
             }
+        }
+
+        private void Gb_GameOver(Challenge ch)
+        {
+            this.Invoke(new Action(() => EndChallenge(ch)));
         }
 
         private void Comm_StartGame(Tuple<Challenge, int> message)
@@ -188,6 +256,15 @@ namespace Blackjack_Game
             this.Invoke(new Action(() => 
                 PopulateCmb(message)
             ));
+        }
+
+        private void btnCancelCh_Click(object sender, EventArgs e)
+        {
+            if (SentChallenges.Count > 0)
+            {
+                EndChallenge(SentChallenges[0]);
+                btnCancelCh.Visible = false;
+            }
         }
     }
 }

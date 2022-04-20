@@ -32,6 +32,7 @@
             this.btnPlaySingle = new System.Windows.Forms.Button();
             this.btnJoin = new System.Windows.Forms.Button();
             this.pnlChat = new System.Windows.Forms.Panel();
+            this.btnCancelCh = new System.Windows.Forms.Button();
             this.cmbChallenges = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.btnDecline = new System.Windows.Forms.Button();
@@ -76,6 +77,7 @@
             // pnlChat
             // 
             this.pnlChat.BackColor = System.Drawing.Color.Black;
+            this.pnlChat.Controls.Add(this.btnCancelCh);
             this.pnlChat.Controls.Add(this.cmbChallenges);
             this.pnlChat.Controls.Add(this.label3);
             this.pnlChat.Controls.Add(this.btnDecline);
@@ -97,6 +99,18 @@
             this.pnlChat.Name = "pnlChat";
             this.pnlChat.Size = new System.Drawing.Size(1082, 621);
             this.pnlChat.TabIndex = 3;
+            // 
+            // btnCancelCh
+            // 
+            this.btnCancelCh.BackColor = System.Drawing.Color.Black;
+            this.btnCancelCh.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnCancelCh.Location = new System.Drawing.Point(775, 521);
+            this.btnCancelCh.Name = "btnCancelCh";
+            this.btnCancelCh.Size = new System.Drawing.Size(292, 30);
+            this.btnCancelCh.TabIndex = 16;
+            this.btnCancelCh.Text = "Cancel Challenge";
+            this.btnCancelCh.UseVisualStyleBackColor = false;
+            this.btnCancelCh.Click += new System.EventHandler(this.btnCancelCh_Click);
             // 
             // cmbChallenges
             // 
@@ -319,5 +333,6 @@
         private Button btnDecline;
         private ComboBox cmbChallenges;
         private Label label3;
+        private Button btnCancelCh;
     }
 }
