@@ -49,6 +49,7 @@
             this.lstMessages = new System.Windows.Forms.ListBox();
             this.txtServIP = new System.Windows.Forms.TextBox();
             this.lblServIP = new System.Windows.Forms.Label();
+            this.btnCancBack = new System.Windows.Forms.Button();
             this.pnlChat.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -77,6 +78,7 @@
             // pnlChat
             // 
             this.pnlChat.BackColor = System.Drawing.Color.Black;
+            this.pnlChat.Controls.Add(this.btnCancBack);
             this.pnlChat.Controls.Add(this.btnCancelCh);
             this.pnlChat.Controls.Add(this.cmbChallenges);
             this.pnlChat.Controls.Add(this.label3);
@@ -189,7 +191,7 @@
             this.txtUsername.Location = new System.Drawing.Point(138, 12);
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.PlaceholderText = " Max 8 Characters";
-            this.txtUsername.Size = new System.Drawing.Size(282, 29);
+            this.txtUsername.Size = new System.Drawing.Size(215, 29);
             this.txtUsername.TabIndex = 9;
             // 
             // label2
@@ -241,9 +243,9 @@
             // 
             this.btnStart.BackColor = System.Drawing.Color.Black;
             this.btnStart.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnStart.Location = new System.Drawing.Point(858, 12);
+            this.btnStart.Location = new System.Drawing.Point(709, 12);
             this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(212, 29);
+            this.btnStart.Size = new System.Drawing.Size(178, 29);
             this.btnStart.TabIndex = 4;
             this.btnStart.Text = "Join Server";
             this.btnStart.UseVisualStyleBackColor = false;
@@ -277,9 +279,9 @@
             this.txtServIP.BackColor = System.Drawing.Color.Black;
             this.txtServIP.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.txtServIP.ForeColor = System.Drawing.Color.White;
-            this.txtServIP.Location = new System.Drawing.Point(556, 13);
+            this.txtServIP.Location = new System.Drawing.Point(480, 12);
             this.txtServIP.Name = "txtServIP";
-            this.txtServIP.Size = new System.Drawing.Size(282, 29);
+            this.txtServIP.Size = new System.Drawing.Size(223, 29);
             this.txtServIP.TabIndex = 1;
             // 
             // lblServIP
@@ -287,11 +289,23 @@
             this.lblServIP.AutoSize = true;
             this.lblServIP.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.lblServIP.ForeColor = System.Drawing.Color.White;
-            this.lblServIP.Location = new System.Drawing.Point(435, 16);
+            this.lblServIP.Location = new System.Drawing.Point(359, 15);
             this.lblServIP.Name = "lblServIP";
             this.lblServIP.Size = new System.Drawing.Size(115, 21);
             this.lblServIP.TabIndex = 0;
             this.lblServIP.Text = "Enter Server IP:";
+            // 
+            // btnCancBack
+            // 
+            this.btnCancBack.BackColor = System.Drawing.Color.Black;
+            this.btnCancBack.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.btnCancBack.Location = new System.Drawing.Point(893, 12);
+            this.btnCancBack.Name = "btnCancBack";
+            this.btnCancBack.Size = new System.Drawing.Size(178, 29);
+            this.btnCancBack.TabIndex = 17;
+            this.btnCancBack.Text = "Cancel";
+            this.btnCancBack.UseVisualStyleBackColor = false;
+            this.btnCancBack.Click += new System.EventHandler(this.btnCancBack_Click);
             // 
             // Form1
             // 
@@ -334,5 +348,6 @@
         private ComboBox cmbChallenges;
         private Label label3;
         private Button btnCancelCh;
+        private Button btnCancBack;
     }
 }

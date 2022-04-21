@@ -95,6 +95,19 @@ namespace BlackjackClasses
             }
         }
 
+        public void SendMessage(int message)
+        {
+            try
+            {
+                IFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(writer.BaseStream, message);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public void SendClientList(List<string> clientNames)
         {
             try
@@ -106,6 +119,31 @@ namespace BlackjackClasses
             {
                 throw;
             }
+        }
+
+        public void Dispose()
+        {
+            //Dispose(true);
+            //GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            //if (_disposed)
+            //{
+            //    return;
+            //}
+
+            //if (disposing)
+            //{
+
+            //}
+        }
+
+        public void ShutDown()
+        {
+            done = true;
+            listener.Stop();
         }
 
         private void ServerWorker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
@@ -187,6 +225,13 @@ namespace BlackjackClasses
                                 serverWorker.ReportProgress(4, (Tuple<Challenge, int>)o);
                             else if (tup.Item2 == 0)
                                 serverWorker.ReportProgress(5, (Tuple<Challenge, int>)o);
+                        }
+                        else if (o is int)
+                        {
+                            done = true;
+                            listener.Stop();
+                            socketStream.Close();
+                            connection.Close();
                         }
                     }
                     catch (Exception ex)

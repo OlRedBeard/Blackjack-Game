@@ -239,6 +239,15 @@ namespace Blackjack_Game
             ));
         }
 
+        private void ConnectionLost(string msg)
+        {
+            lstMessages.Items.Add(msg);
+            ScrollMessageList();
+            lblServIP.Visible = true;
+            txtServIP.Visible = true;
+            btnStart.Visible = true;
+        }
+
         private void Comm_Connected(string servername, int port)
         {
             string msg = "** Connected to: " + servername + " on port " + port + " **";
@@ -265,6 +274,12 @@ namespace Blackjack_Game
                 EndChallenge(SentChallenges[0]);
                 btnCancelCh.Visible = false;
             }
+        }
+
+        private void btnCancBack_Click(object sender, EventArgs e)
+        {
+            pnlChat.Visible = false;
+            comm.ShutDownClient();
         }
     }
 }

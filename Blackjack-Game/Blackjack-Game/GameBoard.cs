@@ -820,6 +820,7 @@ namespace Blackjack_Game
             {
                 GameOver(this.theChallenge);
                 SendGameEnd();
+                listener.Stop();
             }
             else
             {

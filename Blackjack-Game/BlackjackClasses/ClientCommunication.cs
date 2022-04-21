@@ -71,6 +71,12 @@ namespace BlackjackClasses
             formatter.Serialize(writer.BaseStream, challengeTuple);
         }
 
+        public void ShutDownClient()
+        {
+            client.Close();
+            nStream.Close();
+        }
+
         private void Worker_DoWork(object? sender, DoWorkEventArgs e)
         {
             try
@@ -119,7 +125,7 @@ namespace BlackjackClasses
                     throw;
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 ConnectionFailed(this.serverName, this.port);
             }

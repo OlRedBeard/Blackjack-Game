@@ -69,6 +69,14 @@ namespace Blackjack_Server
             ScrollListBox();
         }
 
+        private void ShutdownMessage(int message)
+        {
+            foreach (ServerManager cli in lstClients)
+            {
+                cli.SendMessage(message);
+            }
+        }
+
         private void ServerMessage(string message)
         {
             foreach (ServerManager cli in lstClients)
@@ -194,6 +202,24 @@ namespace Blackjack_Server
             RelayMessage(client, message);
             lstMessages.Items.Add(client.name + ": " + message);
             ScrollListBox();
+        }
+
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+            //mngr = null;
+
+            //ShutdownMessage(1);
+
+            //mngr.ShutDown();
+
+            //lstMessages.Items.Add("** Server Shut Down **");
+            //ScrollListBox();
+
+            //listener.Stop();
+
+            //btnStart.Enabled = false;
+            //Thread.Sleep(3000);
+            //btnStart.Enabled = true;
         }
     }
 }
