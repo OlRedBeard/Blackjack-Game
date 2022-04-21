@@ -71,6 +71,12 @@ namespace BlackjackClasses
             formatter.Serialize(writer.BaseStream, challengeTuple);
         }
 
+        public void SendEnd()
+        {
+            IFormatter formatter = new BinaryFormatter();
+            formatter.Serialize(writer.BaseStream, 1);
+        }
+
         public void ShutDownClient()
         {
             client.Close();
@@ -117,6 +123,13 @@ namespace BlackjackClasses
                                 StartGame((Tuple<Challenge, int>)o);
                             else
                                 EndChallenge((Tuple<Challenge, int>)o);
+                        }
+                        else if (o is int)
+                        {
+                            SendEnd();
+                            client.Close();
+                            nStream.Socket.Close();
+                            nStream.Close();
                         }
                     }
                 }

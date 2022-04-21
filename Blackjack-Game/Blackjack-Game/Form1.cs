@@ -235,7 +235,7 @@ namespace Blackjack_Game
         {
             string msg = "** Connection lost to: " + servername + " on port " + port + " **";
             this.Invoke(new Action(() =>
-                lstMessages.Items.Add(msg)
+                ConnectionLost(msg)
             ));
         }
 

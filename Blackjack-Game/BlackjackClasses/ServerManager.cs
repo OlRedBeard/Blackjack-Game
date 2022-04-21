@@ -143,7 +143,11 @@ namespace BlackjackClasses
         public void ShutDown()
         {
             done = true;
+            if (socketStream != null)
+                socketStream.Close();
             listener.Stop();
+            
+            //connection.Close();
         }
 
         private void ServerWorker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
@@ -243,7 +247,8 @@ namespace BlackjackClasses
             }
             catch (Exception ex)
             {
-                serverWorker.ReportProgress(9);
+                if (!done)
+                    serverWorker.ReportProgress(9);
                 done = true;
             }
         }

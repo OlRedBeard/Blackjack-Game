@@ -74,6 +74,8 @@ namespace Blackjack_Server
             foreach (ServerManager cli in lstClients)
             {
                 cli.SendMessage(message);
+                Thread.Sleep(100);
+                cli.ShutDown();
             }
         }
 
@@ -206,10 +208,9 @@ namespace Blackjack_Server
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            //mngr = null;
+            Application.Restart();
 
             //ShutdownMessage(1);
-
             //mngr.ShutDown();
 
             //lstMessages.Items.Add("** Server Shut Down **");
