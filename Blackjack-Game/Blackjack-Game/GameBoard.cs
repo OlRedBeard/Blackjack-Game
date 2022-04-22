@@ -552,9 +552,57 @@ namespace Blackjack_Game
             {
                 Card tmp = theDeck.DealCard();
                 if (i % 2 == 0)
+                {
+                    if (tmp is Ace && you.CardValue >= 11)
+                    {
+                        Ace ace = (Ace)tmp;
+                        ace.SwapValue();
+                        tmp = ace;
+                    }
+                    else if (tmp.Value + you.CardValue > 21)
+                    {
+                        foreach (Card tmp2 in you.myCards)
+                        {
+                            if (tmp2 is Ace && tmp.Value + you.CardValue > 21)
+                            {
+                                Ace ace2 = (Ace)tmp2;
+                                if (ace2.Value == 11)
+                                {
+                                    ace2.SwapValue();
+                                    you.CardValue -= 10;
+                                }
+                            }
+                        }
+                    }
+
                     you.GetCard(tmp);
+                }
                 else
+                {
+                    if (tmp is Ace && opponent.CardValue >= 11)
+                    {
+                        Ace ace = (Ace)tmp;
+                        ace.SwapValue();
+                        tmp = ace;
+                    }
+                    else if (tmp.Value + opponent.CardValue > 21)
+                    {
+                        foreach (Card tmp2 in opponent.myCards)
+                        {
+                            if (tmp2 is Ace && tmp.Value + opponent.CardValue > 21)
+                            {
+                                Ace ace2 = (Ace)tmp2;
+                                if (ace2.Value == 11)
+                                {
+                                    ace2.SwapValue();
+                                    opponent.CardValue -= 10;
+                                }
+                            }
+                        }
+                    }
+
                     opponent.GetCard(tmp);
+                }
 
                 SetLabelValues();
                 lblPot.Text = thePot.ToString();
